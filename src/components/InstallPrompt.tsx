@@ -29,7 +29,6 @@ export function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [showAndroid, setShowAndroid] = useState(false)
   const [showIos, setShowIos] = useState(false)
-  const [showIosTooltip, setShowIosTooltip] = useState(false)
 
   useEffect(() => {
     if (isStandalone()) return
@@ -37,7 +36,7 @@ export function InstallPrompt() {
 
     // iOS Safari: show custom instructions
     if (isIosSafari()) {
-      setShowIos(true)
+      setTimeout(() => setShowIos(true), 0)
       return
     }
 
@@ -134,11 +133,11 @@ export function InstallPrompt() {
               </div>
               <div className="flex items-center gap-3 text-sm text-gray-300">
                 <span className="w-6 h-6 rounded-full bg-purple-600/40 flex items-center justify-center text-xs font-bold text-purple-300 flex-shrink-0">2</span>
-                <span>Scroll down and tap <strong className="text-white">"Add to Home Screen"</strong></span>
+                <span>Scroll down and tap <strong className="text-white">&quot;Add to Home Screen&quot;</strong></span>
               </div>
               <div className="flex items-center gap-3 text-sm text-gray-300">
                 <span className="w-6 h-6 rounded-full bg-purple-600/40 flex items-center justify-center text-xs font-bold text-purple-300 flex-shrink-0">3</span>
-                <span>Tap <strong className="text-white">"Add"</strong> to confirm</span>
+                <span>Tap <strong className="text-white">&quot;Add&quot;</strong> to confirm</span>
               </div>
             </div>
           </div>

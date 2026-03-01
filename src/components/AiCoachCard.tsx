@@ -27,8 +27,7 @@ export default function AiCoachCard() {
     const weekKey = getISOWeekKey()
     const dismissedKey = localStorage.getItem('dismissed_week')
     if (dismissedKey === weekKey) {
-      setDismissed(true)
-      setLoading(false)
+      setTimeout(() => { setDismissed(true); setLoading(false) }, 0)
       return
     }
 

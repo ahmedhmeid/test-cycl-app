@@ -15,6 +15,7 @@ interface PerfectEntry {
   weekly_score: number
   badges: { type: string; habit_id: string | null }[]
   kudos_counts: Record<string, number>
+  top_habit: { id: string; name: string; emoji: string } | null
   is_current_user: boolean
 }
 
@@ -70,7 +71,7 @@ export default function LeaderboardPage() {
   }, [groupId])
 
   useEffect(() => {
-    fetchData()
+    void Promise.resolve().then(() => fetchData())
     // Fetch group name
     fetch(`/api/groups`).then(r => r.json()).then(groups => {
       const group = groups.find((g: { id: string; name: string }) => g.id === groupId)

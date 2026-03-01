@@ -2,7 +2,6 @@
 // [CYCL:d998318f-b910-43d1-818c-6d6f42ee8710] Notification preferences page — per-group toggles for rank overtake and milestones
 // [CYCL:2e0ff9ca] Also includes push notification subscription toggle
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 
 interface Group {

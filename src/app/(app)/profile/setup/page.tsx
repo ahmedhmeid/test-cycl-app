@@ -25,7 +25,7 @@ export default function ProfileSetupPage() {
       }
     })
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
-    if (TIMEZONES.includes(tz)) setTimezone(tz)
+    if (TIMEZONES.includes(tz)) setTimeout(() => setTimezone(tz), 0)
   }, [])
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
