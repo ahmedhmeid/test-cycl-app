@@ -1,9 +1,11 @@
--- [CYCL:2e0ff9ca-3cbe-48c4-b2d0-e6f763b6c788] Push subscriptions table + RLS
+-- [CYCL:2e0ff9ca] Push subscriptions table + RLS
+-- Stores Web Push API subscriptions with separate p256dh and auth key columns
 CREATE TABLE IF NOT EXISTS public.push_subscriptions (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-  subscription jsonb NOT NULL,
   endpoint text NOT NULL,
+  p256dh text NOT NULL,
+  auth text NOT NULL,
   created_at timestamptz DEFAULT now(),
   UNIQUE(user_id, endpoint)
 );
