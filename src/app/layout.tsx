@@ -1,6 +1,7 @@
 // [CYCL:01109070-ff41-42dd-a9e5-1b8e62970023] Root layout with PWA meta tags and manifest
 import type { Metadata, Viewport } from 'next'
 import { Geist } from 'next/font/google'
+import { InstallPrompt } from '@/components/InstallPrompt'
 import './globals.css'
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-geist-sans' })
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${geist.variable} font-sans antialiased bg-[#0f0e1a] text-white`}>
         {children}
+        <InstallPrompt />
       </body>
     </html>
   )

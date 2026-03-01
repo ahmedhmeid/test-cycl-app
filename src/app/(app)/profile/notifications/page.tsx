@@ -1,7 +1,9 @@
 'use client'
 // [CYCL:d998318f-b910-43d1-818c-6d6f42ee8710] Notification preferences page — per-group toggles for rank overtake and milestones
+// [CYCL:2e0ff9ca] Also includes push notification subscription toggle
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { usePushNotifications } from '@/hooks/usePushNotifications'
 
 interface Group {
   id: string
@@ -17,6 +19,7 @@ export default function NotificationPreferencesPage() {
   const [groups, setGroups] = useState<Group[]>([])
   const [prefs, setPrefs] = useState<Record<string, Prefs>>({})
   const [loading, setLoading] = useState(true)
+  const { permission, isSubscribed, isLoading: pushLoading, subscribe, unsubscribe } = usePushNotifications()
 
   useEffect(() => {
     async function load() {
@@ -55,6 +58,33 @@ export default function NotificationPreferencesPage() {
   return (
     <div className="max-w-lg mx-auto space-y-6">
       <h1 className="text-2xl font-black text-white">Notification Preferences</h1>
+
+      {/* Push notification subscription */}
+      <div className="bg-[#13112b] border border-[#2e2a5e] rounded-xl p-5">
+        <h2 className="font-bold text-white mb-1">Push Notifications</h2>
+        <p className="text-xs text-[#5c5880] mb-4">Receive alerts even when the app is closed</p>
+        {permission === 'denied' ? (
+          <p className="text-xs text-amber-400">Notifications are blocked. Enable them in your browser settings.</p>
+        ) : (
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-white">
+                {isSubscribed ? 'Push notifications enabled' : 'Enable push notifications'}
+              </p>
+              <p className="text-xs text-[#5c5880]">
+                {isSubscribed ? 'You will receive habit reminders and kudos alerts' : 'Stay on top of your habits and group activity'}
+              </p>
+            </div>
+            <button
+              onClick={isSubscribed ? unsubscribe : subscribe}
+              disabled={pushLoading}
+              className={`w-11 h-6 rounded-full transition relative disabled:opacity-50 ${isSubscribed ? 'bg-[#7c6df0]' : 'bg-[#2e2a5e]'}`}
+            >
+              <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${isSubscribed ? 'left-5.5' : 'left-0.5'}`} />
+            </button>
+          </div>
+        )}
+      </div>
       {groups.length === 0 && <p className="text-[#5c5880]">Join a group to manage notification preferences.</p>}
       {groups.map(group => {
         const p = prefs[group.id] ?? { rank_overtake: true, milestone_celebrations: true }
