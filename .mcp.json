@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "cycl": {
+      "type": "http",
+      "url": "https://cycl.hmeid.uk/api/mcp",
+      "headers": {
+        "Authorization": "Bearer ea832e0893f1772d7c9ca65675058cfe83de9eec26a7cadbbbc5fdb3eb873c90"
+      }
+    },
+    "Supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--access-token",
+        "sbp_055b00979b50ce52db1ca70d782c36786f024f8b"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "sbp_055b00979b50ce52db1ca70d782c36786f024f8b"
+      }
+    }
+  }
+}
