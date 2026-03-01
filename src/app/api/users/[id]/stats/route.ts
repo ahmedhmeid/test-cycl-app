@@ -1,7 +1,8 @@
 // [CYCL:cb95563a-41fa-49af-9e7a-14fefce07e1a] GET user stats — per-habit streaks, longest ever streak, total check-ins, perfect-day streak
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { calculateStreak, getTodayInTimezone } from '@/lib/streak'
+import { calculateStreak } from '@/lib/streak'
+import { computePerfectDayStreak } from '@/lib/leaderboard'
 
 export async function GET(
   _request: Request,
@@ -25,20 +26,28 @@ export async function GET(
       supabase.from('habit_logs').select('completed_date').eq('habit_id', h.id).eq('user_id', userId).order('completed_date'),
     ])
 
-    // Compute longest streak
-    let longestStreak = 0
-    let tempStreak = 0
-    const logDates = (allLogs ?? []).map(l => l.completed_date).sort()
+    // Compute longest streak: walk backwards from each log date checking consecutive scheduled days
+    const logSet = new Set((allLogs ?? []).map(l => l.completed_date))
     const scheduleSet = new Set(h.schedule as number[])
+    const sortedDates = [...logSet].sort()
+    let longestStreak = 0
 
-    for (let i = 0; i < logDates.length; i++) {
-      const date = new Date(logDates[i])
-      const dayOfWeek = date.getDay()
-      if (scheduleSet.has(dayOfWeek)) {
-        tempStreak++
+    for (const startDate of sortedDates) {
+      // Walk forward from this date counting consecutive scheduled-day logs
+      let tempStreak = 0
+      const cursor = new Date(startDate + 'T00:00:00Z')
+      for (let j = 0; j < 400; j++) {
+        const dow = cursor.getUTCDay()
+        const ds = cursor.toISOString().slice(0, 10)
+        if (scheduleSet.has(dow)) {
+          if (logSet.has(ds)) {
+            tempStreak++
+          } else {
+            break
+          }
+        }
+        cursor.setUTCDate(cursor.getUTCDate() + 1)
         if (tempStreak > longestStreak) longestStreak = tempStreak
-      } else {
-        tempStreak = 0
       }
     }
 
@@ -55,10 +64,25 @@ export async function GET(
 
   const totalCheckIns = habitStats.reduce((sum, h) => sum + h.total_checkins, 0)
   const longestEverStreak = Math.max(0, ...habitStats.map(h => h.longest_streak))
+  const currentStreak = Math.max(0, ...habitStats.map(h => h.current_streak))
+
+  // Compute perfect-day streak across all user's groups
+  const { data: memberships } = await supabase
+    .from('group_members')
+    .select('group_id')
+    .eq('user_id', userId)
+
+  let perfectDayStreak = 0
+  for (const m of memberships ?? []) {
+    const s = await computePerfectDayStreak(userId, m.group_id, timezone, supabase)
+    if (s > perfectDayStreak) perfectDayStreak = s
+  }
 
   return NextResponse.json({
     habit_stats: habitStats,
     total_checkins: totalCheckIns,
     longest_ever_streak: longestEverStreak,
+    current_streak: currentStreak,
+    perfect_day_streak: perfectDayStreak,
   })
 }

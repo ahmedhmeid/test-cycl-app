@@ -12,6 +12,7 @@ interface LeaderboardEntry {
   weekly_score: number
   badges: { type: string; habit_id: string | null }[]
   kudos_counts: Record<string, number>
+  top_habit: { id: string; name: string; emoji: string } | null
   is_current_user: boolean
 }
 
@@ -58,6 +59,11 @@ export default function PerfectDayBoard({ entries, groupId }: { entries: Leaderb
                   {entry.display_name}
                   {entry.is_current_user && <span className="ml-1 text-[#5c5880] font-normal text-xs">(you)</span>}
                 </div>
+                {entry.top_habit && (
+                  <div className="text-xs text-[#5c5880] mt-0.5 truncate">
+                    {entry.top_habit.emoji} {entry.top_habit.name}
+                  </div>
+                )}
                 <div className="flex items-center gap-1 mt-0.5">
                   <MilestoneBadge badges={entry.badges} />
                 </div>

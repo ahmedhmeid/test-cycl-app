@@ -1,6 +1,6 @@
 // [CYCL:cb95563a-41fa-49af-9e7a-14fefce07e1a] Leaderboard computation utilities — perfect day streak, weekly score, badge awards, rank overtake
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { calculateStreak, getTodayInTimezone } from '@/lib/streak'
+import { calculateStreak } from '@/lib/streak'
 
 /**
  * Computes a user's perfect-day streak for a given group.
@@ -106,14 +106,29 @@ export async function computeWeeklyPerfectScore(
     weekMap.get(weekKey)!.get(dayKey)!.add(log.habit_id)
   }
 
+  // For each week that has any logs, enumerate every day in that ISO week
+  // and verify every scheduled day was fully logged.
   let perfectWeeks = 0
-  for (const [, dayMap] of weekMap) {
+  for (const [weekKey, dayMap] of weekMap) {
+    // Reconstruct the Monday of this ISO week from the weekKey
+    const [yearStr, weekStr] = weekKey.split('-W')
+    const year = parseInt(yearStr)
+    const week = parseInt(weekStr)
+    // Get date of Monday for this ISO week
+    const jan4 = new Date(Date.UTC(year, 0, 4)) // Jan 4 is always in week 1
+    const isoWeekStart = new Date(jan4)
+    isoWeekStart.setUTCDate(jan4.getUTCDate() - ((jan4.getUTCDay() + 6) % 7) + (week - 1) * 7)
+
     let weekPerfect = true
-    for (const [dateStr, loggedSet] of dayMap) {
-      const date = new Date(dateStr)
-      const dayOfWeek = date.getDay()
+    for (let d = 0; d < 7; d++) {
+      const day = new Date(isoWeekStart)
+      day.setUTCDate(isoWeekStart.getUTCDate() + d)
+      const dayOfWeek = day.getUTCDay()
+      const dateStr = day.toISOString().slice(0, 10)
       const scheduledHabits = habits.filter(h => (h.schedule as number[]).includes(dayOfWeek))
-      if (scheduledHabits.length > 0 && !scheduledHabits.every(h => loggedSet.has(h.id))) {
+      if (scheduledHabits.length === 0) continue
+      const loggedSet = dayMap.get(dateStr)
+      if (!loggedSet || !scheduledHabits.every(h => loggedSet.has(h.id))) {
         weekPerfect = false
         break
       }

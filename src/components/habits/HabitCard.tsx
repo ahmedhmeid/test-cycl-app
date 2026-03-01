@@ -5,7 +5,6 @@ import CheckInButton from './CheckInButton'
 import HabitModal from './HabitModal'
 import HabitHeatmap from './HabitHeatmap'
 
-const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const SHORT_DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
 interface HabitCardProps {

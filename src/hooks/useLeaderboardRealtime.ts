@@ -4,7 +4,7 @@ import { useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 export function useLeaderboardRealtime(groupId: string, onUpdate: () => void) {
-  const refresh = useCallback(onUpdate, [onUpdate])
+  const refresh = useCallback(() => onUpdate(), [onUpdate])
 
   useEffect(() => {
     const supabase = createClient()
